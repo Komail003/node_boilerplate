@@ -11,10 +11,7 @@ router.post('/add', async (req, res) => {
   if (error) {
     return res.status(400).json({ message: error.details[0].message });
   }
-
-  // If data is valid, create a new form document using the Mongoose model
   const newForm = new Form(req.body);
-
   try {
     await newForm.save();
     res.status(201).json(newForm);
