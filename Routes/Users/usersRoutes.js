@@ -14,15 +14,14 @@ router.post('/add', async (req, res) => {
     }
     try {
       let User = await Users.findOne({ email: req.body.email });
-      if (User) {
+      let phoneNumber = await Users.findOne({ phoneNumber: req.body.phoneNumber });
+      if (User||phoneNumber) {
         return res.status(400).send("User already exists.");
       }
       let newUser = req.body;
       let hashedPwd = await bcrypt.hash(newUser.password, 10);
       newUser.password = hashedPwd;
       newUser = new Users(req.body);
-      // console.log("hello")
-
       await newUser.save();
       res.status(201).json(newUser);
     } catch (err) {
@@ -56,6 +55,8 @@ router.post("/login", async (req, res) => {
         foundUser.password
       );
       if (passwordMatch) {
+        
+        
         return res
           .status(200)
           .send({ message: "Login successful", user: foundUser });
@@ -91,6 +92,31 @@ router.patch('/update/:id', async (req, res) => {
     res.json(updatedUser);
   } catch (err) {
     res.status(400).json({ message: err.message });
+  }
+});
+
+router.patch('/updatePassword', async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  if (!email || !newPassword) {
+    return res.status(400).json({ message: "Email and new password are required" });
+  }
+
+  try {
+    const user = await Users.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
