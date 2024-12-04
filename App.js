@@ -5,10 +5,10 @@ import mongoose from "mongoose";
 import formRoutes from "./Routes/formRoutes.js";
 import userRoutes from "./Routes/Users/usersRoutes.js";
 import otpMail from "./Routes/Mailer/otpMail.js";
-import smsMail from "./Routes/testSms/smsOtp.js";
-import crypto from "crypto";
-import { request as httpsRequest } from "https";
+import smsOtp from "./Routes/testSms/smsOtp.js";
+import rewardsRoutes from "./Routes/Rewards/rewardsRoute.js";
 
+import verifyJWT from "./MiddleWare/verifyJWT.js"
 import dotenv from "dotenv";
 // import verifyJWT from './MiddleWare/verifyJWT.js';
 dotenv.config();
@@ -24,75 +24,6 @@ mongoose
 
 // Middleware
 App.use(express.json());
-
-App.post("/send-otp", (req, res) => {
-  const { phoneNumber } = req.body;
-
-  if (!phoneNumber) {
-    return res.status(400).json({ message: "Phone number is required" });
-  }
-
-  try {
-    // Generate 6-digit OTP
-    const otp = crypto.randomInt(100000, 999999);
-
-    const options = {
-      method: "POST",
-      hostname: "kqpw1n.api.infobip.com",
-      path: "/sms/2/text/advanced",
-      headers: {
-        Authorization: `App ${process.env.INFOBIP_API_KEY}`, // API Key from .env
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      maxRedirects: 20,
-    };
-
-    const reqInfobip = httpsRequest(options, function (infobipRes) {
-      let chunks = [];
-
-      infobipRes.on("data", function (chunk) {
-        chunks.push(chunk);
-      });
-
-      infobipRes.on("end", function () {
-        const body = Buffer.concat(chunks);
-        console.log("Response from Infobip:", body.toString());
-      });
-
-      infobipRes.on("error", function (error) {
-        console.error("Error occurred:", error);
-        return res.status(500).json({ message: "Error sending OTP", error });
-      });
-    });
-
-    // Prepare the message payload
-    const postData = JSON.stringify({
-      messages: [
-        {
-          destinations: [{ to: `+${phoneNumber}` }], // Add '+' for international format
-          from: process.env.INFOBIP_SENDER_ID, // Replace with your Infobip sender ID
-          text: `Your OTP code is: ${otp}`,
-        },
-      ],
-    });
-
-    reqInfobip.write(postData);
-    reqInfobip.end();
-
-    // Respond to the client that OTP has been sent
-    res.status(200).json({
-      message: "OTP sent successfully",
-      otp, // You can return OTP here for debugging or testing
-    });
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({
-      message: "Failed to send OTP",
-      error: error.message,
-    });
-  }
-});
 
 // routes testing
 App.get("/", (req, res) => {
@@ -113,8 +44,11 @@ App.use("/api/users", userRoutes);
 
 // forgot password
 App.use("/api/email", otpMail);
+App.use("/api/sms", smsOtp);
+// rewards / tickets bonds
+App.use("/api/rewards", rewardsRoutes);
 
-App.use("/api/sms", smsMail);
+
 
 // App.use(verifyJWT);
 // if(verifyJWT){

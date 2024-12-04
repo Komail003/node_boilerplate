@@ -84,7 +84,7 @@ const generateHtmlTemplate = (otp) => `
 const otpStore = new Map();
 
 router.post("/", async (req, res) => {
-  console.log("i am email");
+  // console.log("i am email");
   const myObj = req.body;
   const userEmail = req.body.email;
 
