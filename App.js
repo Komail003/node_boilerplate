@@ -7,20 +7,23 @@ import userRoutes from "./Routes/Users/usersRoutes.js";
 import otpMail from "./Routes/Mailer/otpMail.js";
 import smsOtp from "./Routes/testSms/smsOtp.js";
 import rewardsRoutes from "./Routes/Rewards/rewardsRoute.js";
-
+import ticketsRoutes from "./Routes/Tickets/ticketsRoutes.js";
+import cartsRoutes from "./Routes/Cart/cartRoutes.js";
 import verifyJWT from "./MiddleWare/verifyJWT.js"
 import dotenv from "dotenv";
+
+
 // import verifyJWT from './MiddleWare/verifyJWT.js';
 dotenv.config();
 const App = express();
 const PORT = process.env.PORT || 5000;
 mongoose
-  .connect("mongodb://localhost:27017/enaamDB", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log(err));
+.connect("mongodb://localhost:27017/enaamDB", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log("MongoDB connected"))
+.catch((err) => console.log(err));
 
 // Middleware
 App.use(express.json());
@@ -47,6 +50,8 @@ App.use("/api/email", otpMail);
 App.use("/api/sms", smsOtp);
 // rewards / tickets bonds
 App.use("/api/rewards", rewardsRoutes);
+App.use("/api/tickets", ticketsRoutes);
+App.use("/api/carts", cartsRoutes);
 
 
 

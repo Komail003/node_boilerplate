@@ -1,6 +1,6 @@
 import Express from "express";
 import nodemailer from "nodemailer";
-import Users from "../../Models/Users/users.js";
+import Users from "../../Models/Users/Users.js";
 import dotenv from "dotenv";
 import crypto from "crypto";
 const router = Express.Router();
